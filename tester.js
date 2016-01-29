@@ -30,7 +30,7 @@ var run = function(callback) {
     }, function (e) {
         callback(e)
     });
-driver.findElement(webdriver.By.xpath("//*[text()='Sign']"));
+    driver.findElement(webdriver.By.xpath("//*[text()='Sign']"));
 };
 run(function(err){
     if(err) return console.log('ERROR');
@@ -51,3 +51,4 @@ run(function(err){
 
 
 driver.quit();
+
