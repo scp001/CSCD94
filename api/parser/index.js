@@ -1,3 +1,7 @@
+'use strict';
+
+function Parser() {}
+
 var lcomand = {words : [], comand:''};
 
 var findElement = function(input){
@@ -10,7 +14,7 @@ var findElement = function(input){
     var events = ['click', 'dbclick', 'change', 'blur', 'focus', 'contextmenu', 'keydown', 'keypress', 'keyup', 'mouseenter', 'mousedown',
         'mouseup', 'mouseleave', 'mouseover', 'mousemove', 'scroll', 'select', 'submit', 'hover', 'ready', 'resize'];
 
-    var elements =  ['name', 'id', 'title'];
+    var elements =  ['name', 'id', 'title', 'page'];
 
     var forms = ['fill'];
 
@@ -20,6 +24,14 @@ var findElement = function(input){
         if(value === 'title') {
             comand+='driver.getTitle().then(function(title) { return title === ' + '\''+words[3]+'\'' +';}).then(function(){ ';
             count+=4;
+        }
+        else if(value === 'page') {
+            if(words[1] == 'should') {
+                if(words[2] == 'contains') {
+                    comand+='driver.findElement(self.By.xpath("//*[text()=' + '\''+ words[3] +'\'' + ']")).then(function () {';
+                    count+=4;
+                }
+            }
         }
         else {
             comand+='driver.findElement(self.By.' + value + '(';
@@ -66,7 +78,7 @@ var findElement = function(input){
 
     if(time.indexOf(value) > -1) {
         if(words.length == 2){
-            comand+='driver.' + value + '(self.until.elementLocated(self.By.tagName(\'body\')), '+words[1]+' * 1000).then(function(){ ';
+            comand+='driver.sleep('+words[1]+'*1000).then(function(){ ';
             count+=2;
         } else {
             comand+='driver.' + value + '(self.until.titleIs("' + words[4] + '"), 1000).then(function(){  ';
@@ -122,9 +134,8 @@ function findByParam(input){
     }
 }
 
-function parse() {
+Parser.prototype.start = function(str, callback) {
     lcomand.comand = '';
-    var str = document.getElementById('humanArea').value;
     var comands = str.split('\n');
     for (var i = 0; i < comands.length; i++) {
         var lwords = comands[i].match(/(?:[^\s"]+|"[^"]*")+/g);
@@ -143,29 +154,20 @@ function parse() {
             createComand(lcomand);
         }
     }
-}
+
+    if(lcomand.comand){
+        var res = 'var self = scope.wd; \n' + CompleteChain(lcomand.comand);
+        callback(null, res);
+    }
+    else {
+        callback('Error');
+    }
+};
 
 function createComand(argument) {
     while (argument.words.length!=0) {
         findByParam(argument);
     }
-    document.getElementById('aiArea').value = 'var self = scope.wd; \n' + CompleteChain(argument.comand);
 }
 
-function runTest()
-{
-    document.getElementById('status-field').innerHTML = '<p class="alert alert-info"> Pending... </p>';
-
-    $.ajax({
-     type: 'POST',
-     url: '/runTest',
-     dataType: 'text',
-     data: { address: document.getElementById('url').value, command: document.getElementById('aiArea').value },
-     success: function(response){
-         document.getElementById('status-field').innerHTML = '<p class="alert alert-success"> Success! ' + response + '</p>';
-     },
-     error: function(response) {
-         document.getElementById('status-field').innerHTML = '<p class="alert alert-danger"> Failed! ' + response.status + ' ' + response.responseText + '</p>';
-     }
-    });
-}
+module.exports = new Parser();

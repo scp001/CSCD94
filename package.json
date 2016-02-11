@@ -1,31 +1,35 @@
 {
   "name": "server",
-  "version": "0.1.0",
-  "description": "Ionic Tutorial",
+  "version": "0.0.1",
+  "description": "Selenium testing",
   "main": "server.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ccoenraets/ionic-tutorial"
-  },
-  "author": "Christophe Coenraets",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ccoenraets/ionic-tutorial/issues"
-  },
-  "homepage": "https://github.com/ccoenraets/ionic-tutorial",
-  "dependencies": {
-    "body-parser": "^1.3.1",
-    "express": "^4.13.3",
-    "method-override": "^2.0.2",
-    "open": "0.0.5",
-    "path": "^0.12.7",
-    "selenium-webdriver": "^2.48.2"
-  },
+  "engine": "node 4.0.0",
   "scripts": {
     "start": "node server.js"
   },
   "keywords": [
-    "Ionic",
-    "Tutorial"
-  ]
+    "selenium",
+    "testing"
+  ],
+  "dependencies": {
+    "body-parser": "^1.3.1",
+    "express": "^4.13.3",
+    "method-override": "^2.0.2",
+    "mongoose": "^4.4.3",
+    "path": "^0.12.7",
+    "selenium-webdriver": "^2.48.2"
+  },
+  "devDependencies": {
+    "gulp": "^3.8.11",
+    "gulp-autoprefixer": "^2.3.0",
+    "gulp-browserify": "^0.5.1",
+    "gulp-concat": "^2.5.2",
+    "gulp-jshint": "^1.11.0",
+    "gulp-less": "^3.0.3",
+    "gulp-minify-css": "^1.1.1",
+    "gulp-nodemon": "^2.0.3",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^1.2.0",
+    "gulp-util": "^3.0.4"
+  }
 }
