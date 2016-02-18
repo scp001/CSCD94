@@ -56,7 +56,9 @@ function SplatTests(){
             if(total === testsIds.length){
                 result.text+='-----------------------------------\n';
                 result.text+='Total: ' + result.total.succed + ' Success / ' + result.total.failed + ' Fail';
-                document.getElementById('status-field').innerHTML = '<pre>' + result.text + '</pre>';
+                document.getElementById('status-field').innerHTML = '<pre>' + result.text + '</pre>' + '<br/><a href="#" id="modal-save-all" data-toggle="modal" data-target="#modal-save-test-res"> </a>';
+                document.getElementById('test-result').value = result.text;
+                $('#modal-save-all').click();
             }
             else {
                 setTimeout(check, 1000); // check again in a second
@@ -327,53 +329,50 @@ SplatTests.prototype.runAll = function(){
     this.runAll();
 };
 
+/*******************************************************************/
+/*                      Splat Tests                                */
+/*******************************************************************/
+
 var splat = new SplatTests();
-document.getElementById("splatReg").addEventListener("click", function(){splat.testReg()});
-document.getElementById("splatAuth").addEventListener("click", function(){splat.testAuth()});
-//document.getElementById("splatAddMovie").addEventListener("click", function(){splat.addMovie()});
-//document.getElementById("splatUpdateMovie").addEventListener("click", function(){splat.updateMovie()});
-//document.getElementById("splatDeleteMovie").addEventListener("click", function(){splat.deleteMovie()});
-document.getElementById("splatOrderMoviesByTitle").addEventListener("click", function(){splat.orderMoviesByTitle()});
-document.getElementById("splatOrderMoviesByDirector").addEventListener("click", function(){splat.orderMoviesByDirector()});
-document.getElementById("splatAddDeleteMovie").addEventListener("click", function(){splat.addDeleteMovie()});
-document.getElementById("splatAddUpdateDeleteMovie").addEventListener("click", function(){splat.addUpdateDeleteMovie()});
-document.getElementById("splatAddComment").addEventListener("click", function(){splat.addComment()});
-document.getElementById("splatAll").addEventListener("click", function(){splat.runAll()});
+//document.getElementById("splatReg").addEventListener("click", function(){splat.testReg()});
+//document.getElementById("splatAuth").addEventListener("click", function(){splat.testAuth()});
+////document.getElementById("splatAddMovie").addEventListener("click", function(){splat.addMovie()});
+////document.getElementById("splatUpdateMovie").addEventListener("click", function(){splat.updateMovie()});
+////document.getElementById("splatDeleteMovie").addEventListener("click", function(){splat.deleteMovie()});
+//document.getElementById("splatOrderMoviesByTitle").addEventListener("click", function(){splat.orderMoviesByTitle()});
+//document.getElementById("splatOrderMoviesByDirector").addEventListener("click", function(){splat.orderMoviesByDirector()});
+//document.getElementById("splatAddDeleteMovie").addEventListener("click", function(){splat.addDeleteMovie()});
+//document.getElementById("splatAddUpdateDeleteMovie").addEventListener("click", function(){splat.addUpdateDeleteMovie()});
+//document.getElementById("splatAddComment").addEventListener("click", function(){splat.addComment()});
+//document.getElementById("splatAll").addEventListener("click", function(){splat.runAll()});
 
-
-function parse(){
-    $.ajax({
-        type: 'POST',
-        url: '/parse',
-        dataType: 'text',
-        data: { 'data' : document.getElementById('humanArea').value},
-        success: function(response){
-            document.getElementById('aiArea').value = response;
-        },
-        error: function(response) {
-            console.log(response);
-        }
-    });
+/*******************************************************************/
+function getCookie(name) {
+    var matches = document.cookie.match(new RegExp(
+        "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+    ));
+    return matches ? decodeURIComponent(matches[1]) : undefined;
 }
 
-function runTest()
-{
-    document.getElementById('status-field').innerHTML = '<p class="alert alert-info"> Pending... </p>';
-
-    $.ajax({
-        type: 'POST',
-        url: '/runTest',
-        dataType: 'text',
-        data: {
-            address: document.getElementById('url').value,
-            command: document.getElementById('aiArea').value,
-            options: { closeWindow: document.getElementById("closeWindow").value}
-        },
-        success: function(response){
-            document.getElementById('status-field').innerHTML = '<p class="alert alert-success"> Success! ' + response + '</p>';
-        },
-        error: function(response) {
-            document.getElementById('status-field').innerHTML = '<p class="alert alert-danger"> Failed! ' + response.status + ' ' + response.responseText + '</p>';
-        }
-    });
+function clearCreateAccForm(){
+    $('#acc-name').val('');
+    $('#acc-username').val('');
+    $('#acc-pwd').val('');
+    $('#acc-role').val('none');
 }
+
+document.getElementById("humanArea").addEventListener("keyup", function(){
+    var area = $('#humanArea').val(), scenario = $('#scenario');
+    var role = getCookie('role');
+    if(role && role === 'admin' || role === 'checker') {
+        area.trim().indexOf('\n') > -1 ? scenario.css('visibility', 'visible') : scenario.css('visibility', 'hidden');
+    }
+});
+
+$( 'a[name=test]' ).on( "click", function() {
+    var area = $('#humanArea').val(), scenario = $('#scenario');
+    var role = getCookie('role');
+    if(role && role === 'admin' || role === 'checker') {
+        area.trim().indexOf('\n') > -1 ? scenario.css('visibility', 'visible') : scenario.css('visibility', 'hidden');
+    }
+});

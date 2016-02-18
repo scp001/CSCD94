@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Altester</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
+		<link rel="stylesheet" href="bower_components/font-awesome-bower/css/font-awesome.css" />
+		<link rel="stylesheet" href="assets/style.min.css" />
+	</head>
+
+	<body>
+		<div class="container-fluid">
+			<header class="header">
+				<div class="selenium-logo">
+					<!--<img src="img/selenium.png">-->
+				</div>
+			</header>
+			<nav>
+				<p class="logged"> Logged in as <strong> <%- user %> </strong> - <a href="/logout"> logout </a> </p>
+				<div class="dropdown user-menu">
+						<a class="dropdown-toggle" type="text" data-toggle="dropdown"> Menu
+							<span class="caret"></span></a>
+						<ul class="dropdown-menu" id="menu"> <%- menu %> </ul>
+
+					<div class="modal fade" id="modal-account" role="dialog">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" id="close-modal-acc" data-dismiss="modal">&times;</button>
+									<h4 class="modal-title">Create Account</h4>
+								</div>
+								<div class="modal-body">
+										<label for="name" class="sr-only">Name</label>
+										<input type="text" id="acc-name" name="name" class="form-control form-control-custom" placeholder="Name" required="" autofocus="">
+										<label for="username" class="sr-only">Username</label>
+										<input type="text" id="acc-username" name="username" class="form-control form-control-custom" placeholder="Username" required="" autofocus="">
+										<label for="password" class="sr-only">Password</label>
+										<input type="password" id="acc-pwd" name="password" class="form-control form-control-custom" placeholder="Password" required="">
+										<select title="acc-role" class="form-control form-control-custom" id="acc-role">
+											<option value="none"> --- Choose role --- </option>
+											<%- options %>
+										</select>
+									<div id="create-acc-status"></div>
+									<div class="modal-footer" style="padding: 0">
+										<button type="button" class="btn btn-primary" id="account-save" onclick="newAccount()"> Save </button>
+										<button type="button" class="btn btn-danger" id="account-cancel" data-dismiss="modal"> Cancel </button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="modal fade" id="modal-students" role="dialog">
+						<div class="modal-dialog" style="width: 800px">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" id="close-modal-search" data-dismiss="modal">&times;</button>
+									<h4 class="modal-title">Search Students</h4>
+								</div>
+								<div class="modal-body">
+									<input title="search" type="text" class="form-control" placeholder="Search..." id="search-students" onkeyup="searchStudents()" />
+									<br/>
+									<table class="table">
+										<thead>
+										<tr>
+											<th>Name</th>
+											<th>Course</th>
+											<th>Scenario</th>
+											<th>Results </th>
+											<th>Comment</th>
+										</tr>
+										</thead>
+										<tbody id="students-grid">
+
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="modal fade" id="modal-scenarios" role="dialog">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" id="close-modal-browse" data-dismiss="modal">&times;</button>
+									<h4 class="modal-title">Browse Scenarios</h4>
+								</div>
+								<div class="modal-body">
+									<table class="table">
+										<thead>
+										<tr>
+											<th>Name</th>
+											<th>Scenario</th>
+											<th> Edit/Remove/Start </th>
+										</tr>
+										</thead>
+										<tbody id="scenarios-grid">
+
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</nav>
+			<br/>
+			<br/>
+			<div class="main">
+				<div class="left-side">
+					<div><strong>Write your test: </strong> </div>
+					<div class="modal fade" id="modal" role="dialog">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" id="close-modal-scenario" data-dismiss="modal">&times;</button>
+									<h4 class="modal-title">Save Scenario</h4>
+								</div>
+								<div class="modal-body">
+									<p>Specify name of scenario: </p>
+									<input type="text" title="scenario-name" id="scenario-name" required="" />
+									<div id="scenario-status"></div>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-primary" id="scenario-save" onclick="saveScenario()"> Save </button>
+									<button type="button" class="btn btn-danger" id="scenario-cancel" data-dismiss="modal"> Cancel </button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div>
+						<textarea title="Human" id="humanArea" name="humanTest"  class='form-control'></textarea>
+						<button class="btn btn-primary" name="parse" id="parse" onclick="parse()">Create Test</button>
+						<span id="scenario"> <a class="btn btn-link btn-save-scenario" href="#" data-toggle="modal" data-target="#modal"> Save Scenario </a> </span>
+					</div>
+					<div>
+						<textarea title="AI" id="aiArea" name="aiTest" class='form-control' wrap="soft"></textarea>
+					</div>
+					<div id="close">
+						<div class="form-group">
+							<label for="closeWindow">Close browser window automatically when test will be finished:</label>
+							<select class="form-control" id="closeWindow">
+								<option value="true"> Yes  </option>
+								<option value="false"> No </option>
+							</select>
+						</div>
+					</div>
+					<div>
+						<input title="URL" id="url" name="urlInput" type="text" value="https://www.google.ca/" />
+						<button class="btn btn-success" name="runTest" id="run" onclick="runTest()">Run Test</button>
+					</div>
+					<div id="status-field"></div>
+
+					<div class="modal fade" id="modal-save-test-res" role="dialog">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" id="close-modal-test-res" data-dismiss="modal">&times;</button>
+									<h4 class="modal-title">Save Test Results</h4>
+								</div>
+								<div class="modal-body">
+									<label for="course" class="sr-only">Course</label>
+									<input type="text" id="course" name="course" class="form-control form-control-custom" placeholder="Course" required="" autofocus="">
+									<label for="comment">Comment</label>
+									<textarea class="form-control" rows="5" id="comment" style="resize: none"></textarea>
+									<label for="test-result" style="margin-top: 30px">Test Results</label>
+									<textarea class="form-control" rows="5" id="test-result" style="resize: none" disabled></textarea>
+									<div id="student-test-results"></div>
+									<div class="modal-footer" style="padding: 0">
+										<button type="button" class="btn btn-primary" onclick="saveTestResults()"> Save </button>
+										<button type="button" class="btn btn-danger"  data-dismiss="modal"> Cancel </button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="right-side">
+					<div><strong> Provided tests: </strong></div>
+						<a href="#" data-toggle="modal" data-target="#modal-scenarios" onclick="getScenarios()"> Browse scenarios </a>
+						<!--<a href="javascript:;" id="splatReg" name="test"> Splat Registration Test </a>-->
+						<!--<a href="javascript:;" id="splatAuth" name="test"> Splat Authorization Test </a>-->
+						<!--<a href="javascript:;" id="splatOrderMoviesByTitle" name="test"> Splat Order Movies By Title </a>-->
+						<!--<a href="javascript:;" id="splatOrderMoviesByDirector" name="test"> Splat Order Movies By Director </a>-->
+						<!--<a href="javascript:;" id="splatAddDeleteMovie" name="test"> Splat Add/Delete Movie </a>-->
+						<!--<a href="javascript:;" id="splatAddUpdateDeleteMovie" name="test"> Splat Add/Update/Delete Movie </a>-->
+						<!--<a href="javascript:;" id="splatAddComment" name="test"> Splat Add Movie/Add Comment/Delete Movie </a>-->
+						<!--<a href="javascript:;" id="splatAll" name="test"> Splat Run All </a>-->
+					</div>
+				</div>
+			</div>
+	</body>
+	<script src="bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="provided.js"></script>
+	<script src="actions.js"></script>
+</html>
