@@ -51,8 +51,9 @@ function Tests(){
             if(total === testsMap.size){
                 result.text+='-----------------------------------\n';
                 result.text+='Total: ' + result.total.succed + ' Success / ' + result.total.failed + ' Fail';
-                document.getElementById('status-field').innerHTML = '<pre>' + result.text + '</pre>' + '<br/><a href="#" id="modal-save-all" data-toggle="modal" data-target="#modal-save-test-res"> </a>';
+                document.getElementById('status-field').innerHTML = '<pre>' + result.text + '<br/><a href="#" id="modal-save-all" data-toggle="modal" data-target="#modal-save-test-res">Save result</a>' + '</pre>';
                 document.getElementById('test-result').value = result.text;
+
             }
             else {
                 setTimeout(check, 1000); // check again in a second
@@ -65,7 +66,10 @@ function Tests(){
 
 
 var tests = new Tests();
-document.getElementById("runAll").addEventListener("click", function(){tests.runAll()});
+document.getElementById("runAll").addEventListener("click", function(){
+  tests.runAll();
+  $('#status-field').html('<p class="alert alert-info"> Pending... </p>');
+});
 
 function getCookie(name) {
     var matches = document.cookie.match(new RegExp(
@@ -133,7 +137,7 @@ document.getElementById('parse').addEventListener('click', function(){
 
 var socket = io.connect('http://localhost:3000');
 document.getElementById('run').addEventListener('click', function(){
-    document.getElementById('status-field').innerHTML = '<p class="alert alert-info"> Pending... </p>';
+    $('#status-field').html('<p class="alert alert-info"> Pending... </p>');
 
     socket.emit('run test', {
         address: document.getElementById('url').value,
@@ -294,6 +298,7 @@ function startScenario(name) {
     }
 
     if(confirmed || role==='student') {
+        reset();
         $.ajax({
             type: 'POST',
             url: '/script',
@@ -522,6 +527,7 @@ function reset(){
     $('#scenario-name').val('').prop('disabled', false);
     $('#scenario').css('visibility', 'hidden');
     $('#reset').css('visibility', 'hidden');
+    $('#status-field').html('');
 }
 
 document.getElementById('reset').addEventListener('click', function(){
