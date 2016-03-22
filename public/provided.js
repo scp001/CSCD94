@@ -3,6 +3,7 @@
 /********code highlighting options*******/
 // trigger extension
 ace.require("ace/ext/chromevox");
+
 var aiAreaEditor = ace.edit("aiArea");
 aiAreaEditor.session.setMode("ace/mode/javascript");
 aiAreaEditor.setTheme("ace/theme/tomorrow");
@@ -18,6 +19,7 @@ humanAreaEditor.$blockScrolling = Infinity;
 /****************************************************************/
 var testsMap = new Map();
 var current = { provided: false, name: null, scenario: null };
+
 
 function Tests(){
     this.runAll = function(){
@@ -102,7 +104,7 @@ function Tests(){
             if(total === testsMap.size){
                 result.text+='-----------------------------------\n';
                 result.text+='Total: ' + result.total.succed + ' Success / ' + result.total.failed + ' Fail';
-                document.getElementById('status-field').innerHTML = '<pre>' + result.text + '<br/><a href="#" id="modal-save-all" data-toggle="modal" data-target="#modal-save-test-res">Save result</a>' + '</pre>';
+                document.getElementById('status-field').innerHTML = '<pre>' + result.text + '<br/><a href="#" id="modal-save-all" data-toggle="modal" data-target="#modal-save-test-res" onClick="getStudentsList()">Save result</a>' + '</pre>';
                 document.getElementById('test-result').value = result.text;
 
             }
@@ -131,28 +133,32 @@ function getCookie(name) {
 }
 
 document.getElementById("humanArea").addEventListener("keyup", function(){
-    var area = $('#humanArea').val(), scenario = $('#scenario'), save = $('#saveScenario'),
-        remove = $('#removeScenario'), discard = $('#discard'), reset = $('#reset');
-    var role = getCookie('role');
-    if(role && role === 'admin' || role === 'checker') {
+  var area = $('#humanArea').val(), scenario = $('#scenario'), save = $('#saveScenario'),
+      remove = $('#removeScenario'), discard = $('#discard'), reset = $('#reset');
+  save.css('visibility', 'visible');
+  var role = getCookie('role');
+  if(role && role === 'admin' || role === 'checker') {
 
-        area ? scenario.css('visibility', 'visible') && reset.css('visibility', 'visible')
-             : scenario.css('visibility', 'hidden') && reset.css('visibility', 'hidden') ;
-        current.provided ? scenario.css('visibility', 'visible')  : false;
+      area ? scenario.css('visibility', 'visible') && reset.css('visibility', 'visible')
+           : scenario.css('visibility', 'hidden') && reset.css('visibility', 'hidden') ;
+      current.provided ? scenario.css('visibility', 'visible')  : false;
 
-        if (testsMap.has(area)) {
-            remove.show();
-            save.hide();
-            discard.hide()
-        }
-        else {
-            current.provided ? remove.show() : remove.hide();
-            current.scenario ? discard.show() : discard.hide();
-            save.show();
-        }
-    }
+      if (testsMap.has(area)) {
+          remove.show();
+          save.hide();
+          discard.hide();
+      }
+      else {
+          current.provided ? remove.show() : remove.hide();
+          current.scenario ? discard.show() : discard.hide();
+          save.show();
+      }
+  }
 });
 
+// document.getElementById("humanArea").addEventListener("keypress", function(){
+//
+// });
 
 document.addEventListener("DOMContentLoaded", function(e) {
     var role = getCookie('role');
@@ -200,11 +206,11 @@ document.getElementById('run').addEventListener('click', function(){
 
     socket.on('send status', function(response){
         if(response.code === 200) {
-            document.getElementById('status-field').innerHTML = '<p class="alert alert-success"> Success! ' + response.msg + '<a href="#" data-toggle="modal" data-target="#modal-save-test-res" style="float: right; color: #3c763d"> Click to save results </a>' + '</p>';
+            document.getElementById('status-field').innerHTML = '<p class="alert alert-success"> Success! ' + response.msg + '<a href="#" data-toggle="modal" data-target="#modal-save-test-res" onClick="getStudentsList()" style="float: right; color: #3c763d"> Click to save results </a>' + '</p>';
             document.getElementById('test-result').value = 'Success! ' + response.msg
         }
         else {
-            document.getElementById('status-field').innerHTML = '<p class="alert alert-danger"> Failed! '  + '<a href="#" style="color: #BF360C"" onclick="alert(' + '\'' + response.msg.replace(/(?:\r\n|\r|\n)/g, ' ').replace(/[^\w\s]/gi, '')  + '\'' + ')"> Show details </a>' + '<a href="#" data-toggle="modal" data-target="#modal-save-test-res" style="float: right; color: #BF360C"> Click to save results </a>' +'</p>';
+            document.getElementById('status-field').innerHTML = '<p class="alert alert-danger"> Failed! '  + '<a href="#" style="color: #BF360C"" onclick="alert(' + '\'' + response.msg.replace(/(?:\r\n|\r|\n)/g, ' ').replace(/[^\w\s]/gi, '')  + '\'' + ')"> Show details </a>' + '<a href="#" data-toggle="modal" data-target="#modal-save-test-res" onClick="getStudentsList()" style="float: right; color: #BF360C"> Click to save results </a>' +'</p>';
             document.getElementById('test-result').value = 'Failed! ' + response.msg
         }
     });
@@ -272,6 +278,7 @@ document.getElementById('newScenario').addEventListener('click', function(){
 
     if(confirmed) {
         reset();
+        $('#saveScenario').css('visibility', 'hidden');
     }
 });
 
@@ -372,7 +379,7 @@ function startScenario(name) {
                         scenario: response[0].scenario
                     };
                     $('#test-header').text('Update ' + '[' + response[0].name + ']' + ' test:');
-                    $('#scenario-name').val(response[0].name).prop('disabled', true);
+                    $('#scenario-name').val(response[0].name).prop('disabled', false);
                     $('#scenario').css('visibility', 'visible');
                     $('#reset').css('visibility', 'visible');
                     $('#saveScenario').hide();
@@ -386,6 +393,10 @@ function startScenario(name) {
         });
     }
 }
+
+document.getElementById('scenario-name').addEventListener('change', function(){
+  current.provided = false;
+});
 
 document.getElementById('scenario-save').addEventListener('click', function(){
     var name = current.provided ? current.name : document.getElementById('scenario-name').value.trim();
@@ -423,7 +434,9 @@ document.getElementById('scenario-save').addEventListener('click', function(){
         });
     }
     else {
-        Notify('Scenario name, text or url is not specified', null, null, 'danger');
+      if(!name) Notify('Scenario name is not specified', null, null, 'danger');
+      if(!scenario) Notify('Scenario text is not specified', null, null, 'danger');
+      if(!url) Notify('Scenario url is not specified', null, null, 'danger');
     }
 });
 
@@ -487,21 +500,63 @@ function getStudents(filter){
     }
 }
 
+// get list of students and return option list
+function getStudentsList(){
+  var studentList = $('#studentList');
+  var studentListCount = $('#studentList option');
+  function render(data){
+    data.forEach(function(item){
+      studentList.append(
+        $('<option></option>').val(item._id).html(item.name)
+      );
+    });
+  }
+  if(studentListCount.length <= 1){
+    $.ajax({
+      type: 'GET',
+      url: '/studentslist',
+      dataType: 'json',
+      success: function(data){
+          render(data);
+      },
+      error: function(data) {
+          console.log(data.responseText);
+      }
+    });
+  }
+}
+
 document.getElementById('save-test-results').addEventListener('click', function(){
     var course = document.getElementById('course').value,
         scenario = humanAreaEditor.getValue(),
         result = document.getElementById('test-result').value,
-        comment = document.getElementById('comment').value;
+        comment = document.getElementById('comment').value,
+        user = $('#studentList option:selected').text(),
+        userId = $('#studentList option:selected').val();
 
     function clearSaveTestFields(){
         $('#course').val('');
         $('#comment').val('');
+        $('#studentList option:selected').val('');
     }
+    if(!scenario){
+      scenario = "Run all provided tests"
+    }
+    if(!course || !result || userId === "null"){
+      if(!course)
+        Notify("Please specify course", null, null, 'danger');
+      if(userId === "null")
+        Notify("Please choose student", null, null, 'danger');
+      if(!result)
+        Notify("Result tests is unknown", null, null, 'danger');
 
-    if(!course || !scenario || !result) return false;
+      return false;
+    }
     else {
         var test = {
             student: {
+                id: userId,
+                name: user,
                 course: course
             },
             scenario: scenario,
@@ -597,6 +652,7 @@ document.getElementById('discard').addEventListener('click', function(){
     var discard = current.scenario;
     if(discard) {
         humanAreaEditor.setValue(discard);
+        humanAreaEditor.gotoLine(0);
         $('#discard').hide();
         $('#saveScenario').hide();
         $('#reset').css('visibility', 'visible');
