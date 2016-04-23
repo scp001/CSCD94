@@ -53,7 +53,7 @@ Another example - you expected that value of the field with id property "directo
 director check regex "[m]"
 ```
 
-If value of this field will be "Quentin Tarantino", test will fails:
+If value of this field will be "Aaaaa Bbbbbbb", test will fails:
 
 ```
 Failed!
